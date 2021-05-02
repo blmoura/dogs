@@ -1,40 +1,21 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { TOKEN_POST, USER_GET } from '../../api/api';
+import { UserContext } from '../../context/UserContext';
 import useForm from '../../hooks/useForm';
 import Button from '../Forms/Button';
 import Input from '../Forms/Input';
-
-async function getUser(token) {
-  const { url, options } = USER_GET(token);
-  const response = await fetch(url, options);
-  const json = await response.json();
-  console.log(json);
-}
 
 const LoginForm = () => {
   const username = useForm();
   const password = useForm();
 
-  React.useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) getUser(token);
-  }, []);
+  const { userLogin } = React.useContext(UserContext);
 
   async function handleSubmit(event) {
     event.preventDefault();
 
     if (username.validate() && password.validate()) {
-      const { url, options } = TOKEN_POST({
-        username: username.value,
-        password: password.value,
-      });
-
-      const response = await fetch(url, options);
-      const json = await response.json();
-
-      localStorage.setItem('token', json.token);
-      getUser(json.token);
+      userLogin(username.value, password.value);
     }
   }
 
